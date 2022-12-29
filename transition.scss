@@ -1,26 +1,30 @@
-@mixin tr($default: all 0.4s, $transitions...) {
+// This mixin allows you to define a transition property for a single
+// property or multiple properties, and for a single duration or multiple
+// durations. It also allows you to define a timing function for the
+// transition.
+@mixin transition($transitions...) {
   $transpiled: ();
-  $transitions: append($transitions, $default, comma);
+  // if no transitions are passed, default to all
+  @if length($transitions) == 0 {
+    $transitions: all;
+  }
+  // loop through each transition
   @each $transition in $transitions {
+    // transpile each transition and append it to the transpiled list
     $transpiled: append($transpiled, transpileTransition($transition), comma);
   }
+  // output the transpiled list as the transition value
   transition: $transpiled;
 }
 
 @function transpileTransition($transition) {
-  $duration: 0.4s;
-  $timing-function: null;
-  $delay: null;
-  $defaultValues: ($duration $timing-function $delay);
-  $transpiledTransition: ();
-  @for $i from 1 through 4 {
-    $p: null;
-    @if $i <= length($transition) {
-      $p: nth($transition, $i);
-    } @else {
-      $p: nth($defaultValues, $i - 1);
-    }
-    $transpiledTransition: append($transpiledTransition, $p);
-  }
-  @return $transpiledTransition;
+  $defaults: (
+    duration: 0.4s,
+    timing-function: ease,
+    delay: null,
+  );
+
+  $transition: merge($defaults, $transition);
+
+  @return ($transition);
 }
